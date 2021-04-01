@@ -1,4 +1,4 @@
-use crate::common::{Cmd};
+use crate::common::Cmd;
 use phf;
 
 pub mod hello;

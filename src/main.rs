@@ -1,15 +1,15 @@
-mod common;
 mod cmds;
+mod common;
 
-use common::{Result};
 use cmds::*;
+use common::Result;
 
 use eyre::eyre;
 use std::convert::TryInto;
 use std::path::Path;
 
 fn main() -> Result<()> {
-    let args : Vec<_> = std::env::args().collect();
+    let args: Vec<_> = std::env::args().collect();
 
     if args[0].contains("omegabox") {
         if args.len() < 2 {
