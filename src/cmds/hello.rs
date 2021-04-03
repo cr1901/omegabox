@@ -1,6 +1,6 @@
 use crate::common::{Arguments, Cmd, Result};
 
-pub struct Hello;
+pub(super) struct Hello;
 
 const HELP: &str = "\
 Hello

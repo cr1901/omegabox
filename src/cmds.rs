@@ -1,8 +1,8 @@
 use crate::common::Cmd;
 use phf;
 
-pub mod hello;
+mod hello;
 
-pub use hello::*;
+use hello::Hello;
 
 include!(concat!(env!("OUT_DIR"), "/codegen.rs"));

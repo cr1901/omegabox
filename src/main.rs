@@ -1,18 +1,16 @@
 mod cmds;
 mod common;
 
-use cmds::*;
-use common::{Cmd, Result};
+use cmds::COMMANDS;
+use common::{Arguments, Cmd, Result};
 
 use eyre::eyre;
-use pico_args::Arguments;
 use std::ffi::OsString;
 use std::path::Path;
 
 fn main() -> Result<()> {
     let mut args: Vec<_> = std::env::args_os().collect();
 
-    // If called via "omegabox", parse top-level args and look for a subcommand.
     strip_omegabox_arg(&mut args)?;
     let (subcmd, mut args) = find_subcommand(args)?;
 
@@ -30,7 +28,7 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-// A global args take priority. The command must be the first or second argument.
+// Global args take priority. The command must be the first or second argument.
 // If called via symlink, subcommand will return the first command line arg or error.
 fn find_subcommand(args_in: Vec<OsString>) -> Result<(Option<&'static dyn Cmd>, Arguments)> {
     let mut args = Arguments::from_vec(args_in);
