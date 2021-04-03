@@ -5,6 +5,22 @@ all: build strip compress xfer
 build:
     PATH=$PATH:$LINKER_DIR cargo build --release --target mipsel-unknown-linux-musl
 
+# Build omegabox on your host machine.
+build-local:
+    cargo build --release
+
+# Run cargo clean.
+clean:
+    cargo clean
+
+# Run omegabox on the Omega2. Does not build or xfer beforehand.
+run +ARGS:
+    ssh $OMEGA2_HOST "~/bin/omegabox {{ARGS}}"
+
+# Run omegabox locally.
+run-local +ARGS:
+    cargo run --release -- {{ARGS}}
+
 # cargo strip --target mipsel-unknown-linux-musl does not work for now.
 # Strip debug symbols using mipsel-openwrt-linux-musl-strip.
 strip:
