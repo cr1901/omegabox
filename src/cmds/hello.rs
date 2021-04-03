@@ -2,6 +2,10 @@ use crate::common::{Arguments, Cmd, Result};
 
 pub(super) struct Hello;
 
+struct HelloArgs {
+    name: Option<String>,
+}
+
 const HELP: &str = "\
 Hello
 
@@ -15,7 +19,7 @@ FLAGS:
     -h          Prints help information
 
 OPTIONS:
-    None
+    -n          Print a name instead of \"World\"
 
 ARGS:
     None
@@ -29,8 +33,17 @@ impl Cmd for Hello {
         print!("{}", HELP);
     }
 
-    fn run(&self, _args: Arguments) -> Result<()> {
-        println!("Hello, world!");
+    fn run(&self, mut args: Arguments) -> Result<()> {
+        let pargs = HelloArgs {
+            name: args.opt_value_from_str("-n")?,
+        };
+
+        if let Some(n) = pargs.name {
+            println!("Hello, {}!", n);
+        } else {
+            println!("Hello, world!");
+        }
+
         Ok(())
     }
 }
