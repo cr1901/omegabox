@@ -2,36 +2,55 @@ mod cmds;
 mod common;
 
 use cmds::*;
-use common::Result;
+use common::{Cmd, Result};
 
 use eyre::eyre;
-use std::convert::TryInto;
+use pico_args::Arguments;
+use std::ffi::OsString;
 use std::path::Path;
 
 fn main() -> Result<()> {
-    let args: Vec<_> = std::env::args().collect();
+    let mut args: Vec<_> = std::env::args_os().collect();
 
-    if args[0].contains("omegabox") {
-        if args.len() < 2 {
-            return Err(eyre!("No command supplied"));
-        }
+    // If called via "omegabox", parse top-level args and look for a subcommand.
+    strip_omegabox_arg(&mut args)?;
+    let (subcmd, args) = find_subcommand(args)?;
 
-        if let Some(cmd) = COMMANDS.get(&*args[1]) {
-            cmd.run(&args)?;
-        } else {
-            return Err(eyre!("Invalid command"));
-        }
+    match subcmd {
+        Some(s) => s.run(args)?,
+        None => println!("omegabox v0.1.0")
     }
 
-    let path = Path::new(&args[0]);
-    if let Some(stripped_path) = path.file_name().and_then(|p| p.to_str()) {
-        if let Some(cmd_as_bin) = COMMANDS.get(stripped_path) {
-            cmd_as_bin.run(&args[1..])?;
-        } else {
-            return Err(eyre!("Invalid command"));
+    Ok(())
+}
+
+// A global args take priority. The command must be the first or second argument.
+// If called via symlink, subcommand will return the first command line arg or error.
+fn find_subcommand(args_in: Vec<OsString>) -> Result<(Option<&'static dyn Cmd>, Arguments)> {
+    let mut args = Arguments::from_vec(args_in);
+    let cmd: Option<&'static dyn Cmd>;
+
+    match args.subcommand()? {
+        Some(s) => {
+            cmd = Some(*COMMANDS.get(&*s.as_str()).ok_or(eyre!("Invalid command"))?);
         }
-    } else {
-        return Err(eyre!("Binary name could not be stripped from path"));
+        None => {
+            cmd = None;
+        },
+    }
+
+    Ok((cmd, args))
+}
+
+fn strip_omegabox_arg(args: &mut Vec<OsString>) -> Result<()> {
+    let cmd = Path::new(&args[0])
+        .file_name()
+        .and_then(|p| p.to_str())
+        .ok_or(eyre!("Binary name could not be stripped from path"))?;
+
+    // Command extracted, we don't need it anymore.
+    if cmd.eq("omegabox") {
+        args.remove(0);
     }
 
     Ok(())
