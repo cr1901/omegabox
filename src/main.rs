@@ -14,10 +14,16 @@ fn main() -> Result<()> {
 
     // If called via "omegabox", parse top-level args and look for a subcommand.
     strip_omegabox_arg(&mut args)?;
-    let (subcmd, args) = find_subcommand(args)?;
+    let (subcmd, mut args) = find_subcommand(args)?;
 
     match subcmd {
-        Some(s) => s.run(args)?,
+        Some(s) => {
+            if args.contains("-h") {
+                s.print_help();
+                return Ok(())
+            }
+            s.run(args)?;
+        },
         None => println!("omegabox v0.1.0")
     }
 
