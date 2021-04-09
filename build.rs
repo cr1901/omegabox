@@ -12,7 +12,10 @@ fn main() {
     writeln!(
         &mut file,
         "pub const COMMANDS: phf::Map<&'static str, &dyn Cmd> = \n{};\n",
-        phf_codegen::Map::new().entry("hello", "&Hello").build()
+        phf_codegen::Map::new()
+            .entry("hello", "&Hello")
+            .entry("led", "&Led")
+            .build()
     )
     .unwrap();
 }

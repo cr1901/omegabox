@@ -1,4 +1,4 @@
-pub use eyre::Result;
+pub use eyre::{eyre, Result};
 pub use pico_args::Arguments;
 
 pub trait Cmd {

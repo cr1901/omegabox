@@ -18,11 +18,11 @@ fn main() -> Result<()> {
         Some(s) => {
             if args.contains("-h") {
                 s.print_help();
-                return Ok(())
+                return Ok(());
             }
             s.run(args)?;
-        },
-        None => println!("omegabox v0.1.0")
+        }
+        None => println!("omegabox v0.1.0"),
     }
 
     Ok(())
@@ -40,7 +40,7 @@ fn find_subcommand(args_in: Vec<OsString>) -> Result<(Option<&'static dyn Cmd>, 
         }
         None => {
             cmd = None;
-        },
+        }
     }
 
     Ok((cmd, args))

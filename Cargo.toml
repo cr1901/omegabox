@@ -10,6 +10,7 @@ edition = "2018"
 eyre = "0.6.5"
 phf = "0.8"
 pico-args = "0.4.0"
+gpio-cdev = "0.4"
 
 [build_dependencies]
 phf_codegen = "0.8"
