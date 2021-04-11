@@ -1,6 +1,8 @@
 use crate::common::*;
 
 use gpio_cdev::{Chip, LineRequestFlags};
+use hal::CdevPin;
+use hal_traits::digital::v2::OutputPin;
 
 pub(super) struct Led;
 
@@ -78,12 +80,14 @@ impl Cmd for Led {
             "set-output",
         )?;
 
+        let mut led = CdevPin::new(handle)?;
+
         match pargs.cmd {
             LedCmd::On => {
-                handle.set_value(0)?;
+                led.set_low()?;
             }
             LedCmd::Off => {
-                handle.set_value(1)?;
+                led.set_high()?;
             }
         }
 
