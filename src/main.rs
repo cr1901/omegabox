@@ -4,12 +4,14 @@ mod common;
 use cmds::COMMANDS;
 use common::{Arguments, Cmd, Result};
 
-use eyre::eyre;
+use simple_eyre::eyre::eyre;
 use std::ffi::OsString;
 use std::path::Path;
 
 fn main() -> Result<()> {
     let mut args: Vec<_> = std::env::args_os().collect();
+
+    simple_eyre::install()?;
 
     strip_omegabox_arg(&mut args)?;
     let (subcmd, mut args) = find_subcommand(args)?;

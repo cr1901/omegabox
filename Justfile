@@ -31,7 +31,7 @@ compress:
     #!/bin/sh
 
     if which upx > /dev/null; then
-        rm target/mipsel-unknown-linux-musl/release/omegabox-comp
+        rm -f target/mipsel-unknown-linux-musl/release/omegabox-comp
         upx -9 -o target/mipsel-unknown-linux-musl/release/omegabox-comp target/mipsel-unknown-linux-musl/release/omegabox;
     else
         cp target/mipsel-unknown-linux-musl/release/omegabox target/mipsel-unknown-linux-musl/release/omegabox-comp

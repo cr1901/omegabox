@@ -7,7 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-eyre = "0.6.5"
+simple-eyre = { git = "https://github.com/yaahc/simple-eyre", version = "0.3.0" }
 phf = "0.8"
 pico-args = "0.4.0"
 gpio-cdev = "0.3"
