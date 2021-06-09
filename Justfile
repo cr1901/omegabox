@@ -1,6 +1,10 @@
 # Run build, strip, compress, and xfer recipes in order.
 all: build strip compress xfer
 
+# Run cargo bloat on omegabox.
+bloat *ARGS:
+    PATH=$PATH:$LINKER_DIR cargo bloat --release --target mipsel-unknown-linux-musl {{ARGS}}
+
 # Build omegabox in release mode.
 build:
     PATH=$PATH:$LINKER_DIR cargo build --release --target mipsel-unknown-linux-musl
@@ -20,6 +24,10 @@ run +ARGS:
 # Run omegabox locally.
 run-local +ARGS:
     cargo run --release -- {{ARGS}}
+
+# Get size using mipsel-openwrt-linux-musl-size.
+size:
+    PATH=$PATH:$LINKER_DIR mipsel-openwrt-linux-musl-size -A target/mipsel-unknown-linux-musl/release/omegabox
 
 # cargo strip --target mipsel-unknown-linux-musl does not work for now.
 # Strip debug symbols using mipsel-openwrt-linux-musl-strip.
