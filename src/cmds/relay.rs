@@ -9,6 +9,7 @@ use hal_traits::blocking::i2c::{Read, Write, WriteRead};
 pub(super) struct Relay;
 
 struct RelayArgs {
+    no_init: bool,
     mask: u16,
     cmd: RelayCmd,
     duration: Option<u16>,
@@ -32,6 +33,7 @@ USAGE:
 
 FLAGS:
     -h          Prints help information
+    -n          Don't run initialization for each port expander (with nonzero mask).
 
 OPTIONS:
     -d ms       Pulse duration (milliseconds)
@@ -73,6 +75,7 @@ impl Cmd for Relay {
 
     fn run(&self, mut args: Arguments) -> Result<()> {
         let pargs = RelayArgs {
+            no_init: args.contains("-n"),
             duration: args.opt_value_from_fn("-d", parse_ms)?,
             cmd: args.free_from_fn(parse_cmd)?,
             mask: args.free_from_fn(parse_mask)?,
@@ -81,7 +84,9 @@ impl Cmd for Relay {
         let i2c = I2cdev::new("/dev/i2c-0")?;
         let mut driver = Driver::new(i2c);
 
-        driver.init(pargs.mask)?;
+        if !pargs.no_init {
+            driver.init(pargs.mask)?;
+        }
 
         match pargs.cmd {
             RelayCmd::On => {
