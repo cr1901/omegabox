@@ -15,6 +15,7 @@ fn main() {
         phf_codegen::Map::new()
             .entry("hello", "&Hello")
             .entry("led", "&Led")
+            .entry("relay", "&Relay")
             .build()
     )
     .unwrap();
