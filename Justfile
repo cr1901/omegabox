@@ -40,7 +40,7 @@ compress:
 
     if which upx > /dev/null; then
         rm -f target/mipsel-unknown-linux-musl/release/omegabox-comp
-        upx -9 -o target/mipsel-unknown-linux-musl/release/omegabox-comp target/mipsel-unknown-linux-musl/release/omegabox;
+        upx --best --ultra-brute -o target/mipsel-unknown-linux-musl/release/omegabox-comp target/mipsel-unknown-linux-musl/release/omegabox
     else
         cp target/mipsel-unknown-linux-musl/release/omegabox target/mipsel-unknown-linux-musl/release/omegabox-comp
     fi
