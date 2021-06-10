@@ -98,7 +98,9 @@ impl Cmd for Relay {
                 driver.toggle(pargs.mask)?;
             }
             RelayCmd::Pulse => {
-                let dur = pargs.duration.ok_or(eyre!("duration value must be specified"))?;
+                let dur = pargs
+                    .duration
+                    .ok_or(eyre!("duration value must be specified"))?;
                 driver.pulse(dur, pargs.mask)?;
             }
         }

@@ -148,7 +148,10 @@ where
         Ok(())
     }
 
-    fn iterate_relays<F>(mask: u16, mut f: F) -> Result<(), Error<T>> where F: FnMut(u8, u8) -> Result<(), Error<T>> {
+    fn iterate_relays<F>(mask: u16, mut f: F) -> Result<(), Error<T>>
+    where
+        F: FnMut(u8, u8) -> Result<(), Error<T>>,
+    {
         let bits = BitSlice::<Msb0, _>::from_element(&mask);
 
         for (adr, b) in (0x20..=0x27).rev().zip(bits.chunks(2)) {
