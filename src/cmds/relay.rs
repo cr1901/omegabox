@@ -86,8 +86,8 @@ impl Cmd for Relay {
         match pargs.cmd {
             RelayCmd::Toggle => {
                 driver.toggle(pargs.mask)?;
-            },
-            _ => unimplemented!()
+            }
+            _ => unimplemented!(),
         }
 
         Ok(())

@@ -77,7 +77,9 @@ where
             let expander_mask: u8 = b.load_le::<u8>();
 
             if expander_mask != 0 {
-                self.ctx.write(adr, &[Self::IODIR, expander_mask]).map_err(Error::WriteError)?;
+                self.ctx
+                    .write(adr, &[Self::IODIR, expander_mask])
+                    .map_err(Error::WriteError)?;
             }
         }
 
@@ -93,9 +95,13 @@ where
             if expander_mask != 0 {
                 let mut buf: [u8; 1] = [0; 1];
 
-                self.ctx.write_read(adr, &[Self::GPIO], &mut buf).map_err(Error::WriteReadError)?;
+                self.ctx
+                    .write_read(adr, &[Self::GPIO], &mut buf)
+                    .map_err(Error::WriteReadError)?;
                 let toggled = !(buf[0] & 0x03);
-                self.ctx.write(adr, &[Self::GPIO, toggled]).map_err(Error::WriteError)?;
+                self.ctx
+                    .write(adr, &[Self::GPIO, toggled])
+                    .map_err(Error::WriteError)?;
             }
         }
 
