@@ -77,8 +77,9 @@ where
             let expander_mask: u8 = b.load_le::<u8>();
 
             if expander_mask != 0 {
+                // Initialize both relays to outputs avoid confusion.
                 self.ctx
-                    .write(adr, &[Self::IODIR, expander_mask])
+                    .write(adr, &[Self::IODIR, !0x3])
                     .map_err(Error::WriteError)?;
             }
         }
@@ -98,7 +99,9 @@ where
                 self.ctx
                     .write_read(adr, &[Self::GPIO], &mut buf)
                     .map_err(Error::WriteReadError)?;
-                let toggled = !(buf[0] & 0x03);
+
+                let toggled = buf[0] ^ expander_mask;
+
                 self.ctx
                     .write(adr, &[Self::GPIO, toggled])
                     .map_err(Error::WriteError)?;
