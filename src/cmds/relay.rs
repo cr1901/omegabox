@@ -1,6 +1,7 @@
 mod driver;
 
 use crate::common::*;
+use driver::Driver;
 
 use hal::I2cdev;
 use hal_traits::blocking::i2c::{Read, Write, WriteRead};
@@ -77,9 +78,17 @@ impl Cmd for Relay {
             mask: args.free_from_fn(parse_mask)?,
         };
 
-        let mut i2c = I2cdev::new("/dev/i2c-0")?;
+        let i2c = I2cdev::new("/dev/i2c-0")?;
+        let mut driver = Driver::new(i2c);
 
-        i2c.write(0x27, &[0x09, 0x00])?;
+        driver.init(pargs.mask)?;
+
+        match pargs.cmd {
+            RelayCmd::Toggle => {
+                driver.toggle(pargs.mask)?;
+            },
+            _ => unimplemented!()
+        }
 
         Ok(())
     }
