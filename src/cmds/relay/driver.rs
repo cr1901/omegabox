@@ -71,40 +71,78 @@ where
     }
 
     pub fn init(&mut self, mask: u16) -> Result<(), Error<T>> {
-        let bits = BitSlice::<Msb0, _>::from_element(&mask);
+        Self::iterate_relays(mask, |adr, _| {
+            // Initialize both relays to outputs avoid confusion.
+            self.ctx
+                .write(adr, &[Self::IODIR, !0x3])
+                .map_err(Error::WriteError)?;
 
-        for (adr, b) in (0x20..=0x27).rev().zip(bits.chunks(2)) {
-            let expander_mask: u8 = b.load_le::<u8>();
+            Ok(())
+        })
+    }
 
-            if expander_mask != 0 {
-                // Initialize both relays to outputs avoid confusion.
-                self.ctx
-                    .write(adr, &[Self::IODIR, !0x3])
-                    .map_err(Error::WriteError)?;
-            }
-        }
+    pub fn on(&mut self, mask: u16) -> Result<(), Error<T>> {
+        Self::iterate_relays(mask, |adr, expander_mask| {
+            let mut buf: [u8; 1] = [0; 1];
 
-        Ok(())
+            self.ctx
+                .write_read(adr, &[Self::GPIO], &mut buf)
+                .map_err(Error::WriteReadError)?;
+
+            let turn_on = buf[0] | expander_mask;
+
+            self.ctx
+                .write(adr, &[Self::GPIO, turn_on])
+                .map_err(Error::WriteError)?;
+
+            Ok(())
+        })
+    }
+
+    pub fn off(&mut self, mask: u16) -> Result<(), Error<T>> {
+        Self::iterate_relays(mask, |adr, expander_mask| {
+            let mut buf: [u8; 1] = [0; 1];
+
+            self.ctx
+                .write_read(adr, &[Self::GPIO], &mut buf)
+                .map_err(Error::WriteReadError)?;
+
+            let turn_off = buf[0] & !expander_mask;
+
+            self.ctx
+                .write(adr, &[Self::GPIO, turn_off])
+                .map_err(Error::WriteError)?;
+
+            Ok(())
+        })
     }
 
     pub fn toggle(&mut self, mask: u16) -> Result<(), Error<T>> {
+        Self::iterate_relays(mask, |adr, expander_mask| {
+            let mut buf: [u8; 1] = [0; 1];
+
+            self.ctx
+                .write_read(adr, &[Self::GPIO], &mut buf)
+                .map_err(Error::WriteReadError)?;
+
+            let toggled = buf[0] ^ expander_mask;
+
+            self.ctx
+                .write(adr, &[Self::GPIO, toggled])
+                .map_err(Error::WriteError)?;
+
+            Ok(())
+        })
+    }
+
+    fn iterate_relays<F>(mask: u16, mut f: F) -> Result<(), Error<T>> where F: FnMut(u8, u8) -> Result<(), Error<T>> {
         let bits = BitSlice::<Msb0, _>::from_element(&mask);
 
         for (adr, b) in (0x20..=0x27).rev().zip(bits.chunks(2)) {
             let expander_mask: u8 = b.load_le::<u8>();
 
             if expander_mask != 0 {
-                let mut buf: [u8; 1] = [0; 1];
-
-                self.ctx
-                    .write_read(adr, &[Self::GPIO], &mut buf)
-                    .map_err(Error::WriteReadError)?;
-
-                let toggled = buf[0] ^ expander_mask;
-
-                self.ctx
-                    .write(adr, &[Self::GPIO, toggled])
-                    .map_err(Error::WriteError)?;
+                f(adr, expander_mask)?;
             }
         }
 

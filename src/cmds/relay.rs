@@ -84,6 +84,12 @@ impl Cmd for Relay {
         driver.init(pargs.mask)?;
 
         match pargs.cmd {
+            RelayCmd::On => {
+                driver.on(pargs.mask)?;
+            }
+            RelayCmd::Off => {
+                driver.off(pargs.mask)?;
+            }
             RelayCmd::Toggle => {
                 driver.toggle(pargs.mask)?;
             }
