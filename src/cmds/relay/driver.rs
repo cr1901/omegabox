@@ -4,6 +4,8 @@ use bitvec::prelude::*;
 use hal_traits::blocking::i2c::{Read, Write, WriteRead};
 use std::error;
 use std::fmt;
+use std::thread::sleep;
+use std::time::Duration;
 
 pub struct Driver<T>
 where
@@ -16,6 +18,7 @@ pub enum Error<T>
 where
     T: Read + Write + WriteRead,
 {
+    #[allow(unused)]
     ReadError(<T as Read>::Error),
     WriteError(<T as Write>::Error),
     WriteReadError(<T as WriteRead>::Error),
@@ -133,6 +136,16 @@ where
 
             Ok(())
         })
+    }
+
+    pub fn pulse(&mut self, millis: u16, mask: u16) -> Result<(), Error<T>> {
+        let duration = Duration::from_millis(millis as u64);
+
+        self.toggle(mask)?;
+        sleep(duration);
+        self.toggle(mask)?;
+
+        Ok(())
     }
 
     fn iterate_relays<F>(mask: u16, mut f: F) -> Result<(), Error<T>> where F: FnMut(u8, u8) -> Result<(), Error<T>> {

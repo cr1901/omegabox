@@ -4,7 +4,6 @@ use crate::common::*;
 use driver::Driver;
 
 use hal::I2cdev;
-use hal_traits::blocking::i2c::{Read, Write, WriteRead};
 
 pub(super) struct Relay;
 
@@ -98,7 +97,10 @@ impl Cmd for Relay {
             RelayCmd::Toggle => {
                 driver.toggle(pargs.mask)?;
             }
-            _ => unimplemented!(),
+            RelayCmd::Pulse => {
+                let dur = pargs.duration.ok_or(eyre!("duration value must be specified"))?;
+                driver.pulse(dur, pargs.mask)?;
+            }
         }
 
         Ok(())
