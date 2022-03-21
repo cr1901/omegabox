@@ -65,6 +65,7 @@ make-toolchain:
     else
         cd $OMEGA2_SRC
         git pull onion
+        ./scripts/feeds update onion
     fi
 
     make toolchain/install
