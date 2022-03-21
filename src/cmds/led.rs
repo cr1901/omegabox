@@ -6,11 +6,14 @@ use hal_traits::digital::v2::OutputPin;
 
 pub(super) struct Led;
 
-struct LedArgs {
+struct LedParams {
     color: Color,
     cmd: LedCmd,
 }
 
+impl CmdParameters for LedParams {}
+
+#[derive(Clone, Copy)]
 enum Color {
     Red = 17,
     Green = 16,
@@ -67,14 +70,20 @@ impl Cmd for Led {
         print!("{}", HELP);
     }
 
-    fn run(&self, mut args: Arguments) -> Result<()> {
-        let pargs = LedArgs {
+    fn parse_args(&self, mut args: Arguments) -> Result<Box<dyn CmdParameters>> {
+        let pargs = LedParams {
             color: args.free_from_fn(parse_color)?,
             cmd: args.free_from_fn(parse_cmd)?,
         };
 
+        Ok(Box::new(pargs))
+    }
+
+    fn run(&self, params: Box<dyn CmdParameters>) -> Result<()> {
+        let dparams: &LedParams = params.downcast_ref().ok_or(eyre!("Led Cmd didn't receive LedParams"))?;
+
         let mut chip = Chip::new("/dev/gpiochip0")?;
-        let handle = chip.get_line(pargs.color as u32)?.request(
+        let handle = chip.get_line(dparams.color as u32)?.request(
             LineRequestFlags::OUTPUT,
             0,
             "set-output",
@@ -82,7 +91,7 @@ impl Cmd for Led {
 
         let mut led = CdevPin::new(handle)?;
 
-        match pargs.cmd {
+        match dparams.cmd {
             LedCmd::On => {
                 led.set_low()?;
             }

@@ -7,12 +7,14 @@ use hal::I2cdev;
 
 pub(super) struct Relay;
 
-struct RelayArgs {
+struct RelayParams {
     no_init: bool,
     mask: u16,
     cmd: RelayCmd,
     duration: Option<u16>,
 }
+
+impl CmdParameters for RelayParams {}
 
 enum RelayCmd {
     On,
@@ -72,36 +74,42 @@ impl Cmd for Relay {
         print!("{}", HELP);
     }
 
-    fn run(&self, mut args: Arguments) -> Result<()> {
-        let pargs = RelayArgs {
+    fn parse_args(&self, mut args: Arguments) -> Result<Box<dyn CmdParameters>> {
+        let pargs = RelayParams {
             no_init: args.contains("-n"),
             duration: args.opt_value_from_fn("-d", parse_ms)?,
             cmd: args.free_from_fn(parse_cmd)?,
             mask: args.free_from_fn(parse_mask)?,
         };
 
+        Ok(Box::new(pargs))
+    }
+
+    fn run(&self, params: Box<dyn CmdParameters>) -> Result<()> {
+        let dparams: &RelayParams = params.downcast_ref().ok_or(eyre!("Led Cmd didn't receive LedParams"))?;
+
         let i2c = I2cdev::new("/dev/i2c-0")?;
         let mut driver = Driver::new(i2c);
 
-        if !pargs.no_init {
-            driver.init(pargs.mask)?;
+        if !dparams.no_init {
+            driver.init(dparams.mask)?;
         }
 
-        match pargs.cmd {
+        match dparams.cmd {
             RelayCmd::On => {
-                driver.on(pargs.mask)?;
+                driver.on(dparams.mask)?;
             }
             RelayCmd::Off => {
-                driver.off(pargs.mask)?;
+                driver.off(dparams.mask)?;
             }
             RelayCmd::Toggle => {
-                driver.toggle(pargs.mask)?;
+                driver.toggle(dparams.mask)?;
             }
             RelayCmd::Pulse => {
-                let dur = pargs
+                let dur = dparams
                     .duration
                     .ok_or(eyre!("duration value must be specified"))?;
-                driver.pulse(dur, pargs.mask)?;
+                driver.pulse(dur, dparams.mask)?;
             }
         }
 

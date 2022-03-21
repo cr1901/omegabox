@@ -1,10 +1,12 @@
-use crate::common::{Arguments, Cmd, Result};
+use crate::common::*;
 
 pub(super) struct Hello;
 
-struct HelloArgs {
+struct HelloParams {
     name: Option<String>,
 }
+
+impl CmdParameters for HelloParams {}
 
 const HELP: &str = "\
 Hello
@@ -33,12 +35,18 @@ impl Cmd for Hello {
         print!("{}", HELP);
     }
 
-    fn run(&self, mut args: Arguments) -> Result<()> {
-        let pargs = HelloArgs {
+    fn parse_args(&self, mut args: Arguments) -> Result<Box<dyn CmdParameters>> {
+        let pargs = HelloParams {
             name: args.opt_value_from_str("-n")?,
         };
 
-        if let Some(n) = pargs.name {
+        Ok(Box::new(pargs))
+    }
+
+    fn run(&self, params: Box<dyn CmdParameters>) -> Result<()> {
+        let dparams: &HelloParams = params.downcast_ref().ok_or(eyre!("Hello Cmd didn't receive HelloParams"))?;
+
+        if let Some(n) = &dparams.name {
             println!("Hello, {}!", n);
         } else {
             println!("Hello, world!");

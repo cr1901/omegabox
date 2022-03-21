@@ -2,7 +2,7 @@ mod cmds;
 mod common;
 
 use cmds::COMMANDS;
-use common::{Arguments, Cmd, Result};
+use common::{Arguments, Cmd, CmdParameters, Result};
 
 use simple_eyre::eyre::eyre;
 use std::ffi::OsString;
@@ -22,7 +22,9 @@ fn main() -> Result<()> {
                 s.print_help();
                 return Ok(());
             }
-            s.run(args)?;
+
+            let params = s.parse_args(args)?;
+            s.run(params)?;
         }
         None => println!("omegabox v0.1.0"),
     }
