@@ -11,7 +11,7 @@ bitvec = "0.22.3"
 simple-eyre = { git = "https://github.com/cr1901/simple-eyre", branch="must-install-tmp", version = "0.3.0" }
 phf = "0.8"
 pico-args = "0.4.0"
-gpio-cdev = "0.3"
+gpio-cdev = "0.5.1"
 embedded-hal = "0.2.3"
 linux-embedded-hal = { git = "https://github.com/rust-embedded/linux-embedded-hal", branch = "v0.3.x", version = "0.3", features = ["gpio_cdev"] }
 

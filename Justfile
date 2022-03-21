@@ -1,3 +1,5 @@
+set dotenv-load := true
+
 # Run build, strip, compress, and xfer recipes in order.
 all: build strip compress xfer
 
