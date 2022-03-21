@@ -80,7 +80,7 @@ impl Cmd for Led {
     }
 
     fn run(&self, params: Box<dyn CmdParameters>) -> Result<()> {
-        let dparams: &LedParams = params.downcast_ref().ok_or(eyre!("Led Cmd didn't receive LedParams"))?;
+        let dparams: &LedParams = downcast_params(&params)?;
 
         let mut chip = Chip::new("/dev/gpiochip0")?;
         let handle = chip.get_line(dparams.color as u32)?.request(

@@ -86,7 +86,7 @@ impl Cmd for Relay {
     }
 
     fn run(&self, params: Box<dyn CmdParameters>) -> Result<()> {
-        let dparams: &RelayParams = params.downcast_ref().ok_or(eyre!("Led Cmd didn't receive LedParams"))?;
+        let dparams: &RelayParams = downcast_params(&params)?;
 
         let i2c = I2cdev::new("/dev/i2c-0")?;
         let mut driver = Driver::new(i2c);

@@ -12,3 +12,7 @@ pub trait Cmd {
 
 pub trait CmdParameters: Downcast {}
 impl_downcast!(CmdParameters);
+
+pub fn downcast_params<T>(params: &Box<dyn CmdParameters>) -> Result<&T> where T: CmdParameters {
+    Ok(params.downcast_ref::<T>().ok_or(eyre!("could not extract parameters"))?)
+}

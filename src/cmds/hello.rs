@@ -44,7 +44,7 @@ impl Cmd for Hello {
     }
 
     fn run(&self, params: Box<dyn CmdParameters>) -> Result<()> {
-        let dparams: &HelloParams = params.downcast_ref().ok_or(eyre!("Hello Cmd didn't receive HelloParams"))?;
+        let dparams: &HelloParams = downcast_params(&params)?;
 
         if let Some(n) = &dparams.name {
             println!("Hello, {}!", n);
